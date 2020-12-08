@@ -1,5 +1,6 @@
 """ PagerMaid initialization. """
 
+import posthog
 from os import getcwd, makedirs
 from os.path import exists
 from sys import version_info, platform
@@ -17,6 +18,7 @@ working_dir = getcwd()
 logging_format = "%(levelname)s [%(asctime)s] [%(name)s] %(message)s"
 config = None
 help_messages = {}
+posthog.api_key = '1WepU-o7JwNKYqPNymWr_mrCu3RVPD-p28PUikPDfsI'
 logs = getLogger(__name__)
 logging_handler = StreamHandler()
 logging_handler.setFormatter(ColoredFormatter(logging_format))
@@ -58,6 +60,18 @@ if not exists(f"{getcwd()}/data"):
 api_key = config['api_key']
 api_hash = config['api_hash']
 try:
+    proxy_addr = config['proxy_addr'].strip()
+    proxy_port = config['proxy_port'].strip()
+    mtp_addr = config['mtp_addr'].strip()
+    mtp_port = config['mtp_port'].strip()
+    mtp_secret = config['mtp_secret'].strip()
+except:
+    proxy_addr = ''
+    proxy_port = ''
+    mtp_addr = ''
+    mtp_port = ''
+    mtp_secret = ''
+try:
     redis_host = config['redis']['host']
 except KeyError:
     redis_host = 'localhost'
@@ -75,9 +89,37 @@ if api_key is None or api_hash is None:
     )
     exit(1)
 
-bot = TelegramClient("pagermaid", api_key, api_hash, auto_reconnect=True)
+if not proxy_addr == '' and not proxy_port == '':
+    try:
+        import socks
+    except:
+        pass
+    bot = TelegramClient("pagermaid", api_key, api_hash, auto_reconnect=True, proxy=(socks.SOCKS5, proxy_addr, int(proxy_port)))
+elif not mtp_addr == '' and not mtp_port == '' and not mtp_secret == '':
+    from telethon import connection
+    bot = TelegramClient("pagermaid", api_key, api_hash, auto_reconnect=True,
+                         connection=connection.ConnectionTcpMTProxyRandomizedIntermediate,
+                         proxy=(mtp_addr, int(mtp_port), mtp_secret))
+else:
+    bot = TelegramClient("pagermaid", api_key, api_hash, auto_reconnect=True)
 redis = StrictRedis(host=redis_host, port=redis_port, db=redis_db)
 
+async def upload_name():
+    me = await bot.get_me()
+    try:
+        posthog.identify(str(me.id), {
+            'name': str(me.first_name)
+        })
+        logs.info(
+            "上报用户名称成功。"
+        )
+    except:
+        logs.info(
+            "上报用户名称出错了呜呜呜 ~"
+        )
+
+with bot:
+    bot.loop.run_until_complete(upload_name())
 
 def redis_status():
     try:

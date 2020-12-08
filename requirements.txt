@@ -12,12 +12,13 @@ requests
 pytz
 cowpy
 googletrans
-beautifulsoup4
+translate
 gtts
 gtts-token
 wordcloud
 telethon
 pillow
+posthog
 python-magic
 pygments
 distutils2-py3
@@ -31,3 +32,6 @@ flask_bcrypt
 flask_wtf
 wtforms
 cheroot
+PySocks
+certifi
+magic_google

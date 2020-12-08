@@ -9,10 +9,11 @@ from requests.exceptions import MissingSchema, InvalidURL, ConnectionError
 from pagermaid import log, bot
 from pagermaid.listener import listener
 from pagermaid.utils import attach_log, execute
+from telethon.errors.rpcerrorlist import UserAlreadyParticipantError
 from telethon.tl.functions.messages import ImportChatInviteRequest
 
 
-@listener(outgoing=True, command="sh",
+@listener(is_plugin=False, outgoing=True, command="sh",
           description="在 Telegram 上远程执行 Shell 命令。",
           parameters="<命令>")
 async def sh(context):
@@ -63,7 +64,7 @@ async def sh(context):
     await log(f"远程执行 Shell 命令： `{command}`")
 
 
-@listener(outgoing=True, command="restart", diagnostics=False,
+@listener(is_plugin=False, outgoing=True, command="restart", diagnostics=False,
           description="使 PagerMaid-Modify 重新启动")
 async def restart(context):
     """ To re-execute PagerMaid. """
@@ -73,7 +74,7 @@ async def restart(context):
         await context.client.disconnect()
 
 
-@listener(outgoing=True, command="trace",
+@listener(is_plugin=False, outgoing=True, command="trace",
           description="跟踪 URL 的重定向。",
           parameters="<url>")
 async def trace(context):
@@ -116,35 +117,22 @@ async def trace(context):
         await context.edit("无效的参数。")
 
 
-@listener(outgoing=True, command="contact",
-          description="向 Kat 发送消息。",
-          parameters="<message>")
-async def contact(context):
-    """ Sends a message to Kat. """
-    await context.edit("请点击 `[这里](https://t.me/PagerMaid_Modify)` 进入.",
-                       parse_mode="markdown")
-    message = "Hi, I would like to report something about PagerMaid."
-    if context.arguments:
-        message = context.arguments
-    await context.client.send_message(
-        503691334,
-        message
-    )
-
-
-@listener(outgoing=True, command="chat",
+@listener(is_plugin=False, outgoing=True, command="chat",
           description="加入 Pagermaid-Modify 用户群。")
 async def contact_chat(context):
     """ join a chatroom. """
     message = "大家好，我是新人。"
     try:
         await bot(ImportChatInviteRequest('KFUDIlXq9nWYVwPW4QugXw'))
+    except UserAlreadyParticipantError:
+        await context.edit('您早已成功加入 [Pagermaid-Modify](https://github.com/xtaodada/PagerMaid-Modify/) 用户群。')
+        return
     except:
         await context.edit('出错了呜呜呜 ~ 请尝试手动加入 @PagerMaid_Modify')
         return True
     await sleep(3)
     await context.client.send_message(
-        'PagerMaid_Modify',
+        -1001441461877,
         message
     )
     notification = await context.edit('您已成功加入 [Pagermaid-Modify](https://github.com/xtaodada/PagerMaid-Modify/) 用户群。')

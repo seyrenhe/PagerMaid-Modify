@@ -31,11 +31,16 @@ redis:
 # Locale settings
 application_language: "zh-cn"
 application_region: "China"
-application_tts: "cn"
+application_tts: "zh-CN"
 
 # In-Chat logging settings, default settings logs directly into Kat, strongly advised to change
 log: "False"
 log_chatid: "503691334"
+
+# Disabled Built-in Commands
+disabled_cmd:
+  - example1
+  - example2
 
 # Google search preferences
 result_length: "5"
@@ -45,3 +50,10 @@ width: "1920"
 height: "1080"
 background: "#101010"
 margin: "20"
+
+#socks5 or MTProto
+proxy_addr: ""
+proxy_port: ""
+mtp_addr: ""
+mtp_port: ""
+mtp_secret: ""

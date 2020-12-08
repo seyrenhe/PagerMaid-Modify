@@ -6,8 +6,8 @@ from pagermaid import log
 from pagermaid.listener import listener
 
 
-@listener(outgoing=True, command="prune",
-          description="以此命令回复某条消息，将删除最新一条消息至该条消息之间的所有消息。限制：基于消息 ID 的 1000 条消息，大于 1000 条将不作出应答。（非群组管理员只删除自己的消息）")
+@listener(is_plugin=False, outgoing=True, command="prune",
+          description="以此命令回复某条消息，将删除最新一条消息至该条消息之间的所有消息。限制：基于消息 ID 的 1000 条消息，大于 1000 条可能会触发删除消息过快限制。（非群组管理员只删除自己的消息）")
 async def prune(context):
     """ Purge every single message after the message you replied to. """
     if not context.reply_to_msg_id:
@@ -27,13 +27,13 @@ async def prune(context):
     if messages:
         await context.client.delete_messages(input_chat, messages)
     await log(f"批量删除了 {str(count)} 条消息。")
-    notification = await send_prune_notify(context, count)
+    notification = await send_prune_notify(context, count, count)
     await sleep(.5)
     await notification.delete()
 
 
-@listener(outgoing=True, command="selfprune",
-          description="删除当前对话您发送的特定数量的消息。（倒序）",
+@listener(is_plugin=False, outgoing=True, command="selfprune",
+          description="删除当前对话您发送的特定数量的消息。限制：基于消息 ID 的 1000 条消息，大于 1000 条可能会触发删除消息过快限制。入群消息非管理员无法删除。（倒序）当数字足够大时即可实现删除所有消息。",
           parameters="<数量>")
 async def selfprune(context):
     """ Deletes specific amount of messages you sent. """
@@ -42,6 +42,7 @@ async def selfprune(context):
         return
     try:
         count = int(context.parameter[0])
+        await context.delete()
     except ValueError:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
@@ -51,14 +52,14 @@ async def selfprune(context):
             break
         await message.delete()
         count_buffer += 1
-    await log(f"批量删除了自行发送的 {str(count)} 条消息。")
-    notification = await send_prune_notify(context, count)
+    await log(f"批量删除了自行发送的 {str(count_buffer)} / {str(count)} 条消息。")
+    notification = await send_prune_notify(context, count_buffer, count)
     await sleep(.5)
     await notification.delete()
 
 
-@listener(outgoing=True, command="yourprune",
-          description="删除当前对话您回复用户所发送的特定数量的消息。（倒序、需要删除消息权限）",
+@listener(is_plugin=False, outgoing=True, command="yourprune",
+          description="删除当前对话您回复用户所发送的特定数量的消息。限制：基于消息 ID 的 1000 条消息，大于 1000 条可能会触发删除消息过快限制。（倒序、需要删除消息权限）当数字足够大时即可实现删除所有消息。",
           parameters="<数量>")
 async def yourprune(context):
     """ Deletes specific amount of messages someone sent. """
@@ -83,13 +84,13 @@ async def yourprune(context):
             break
         await message.delete()
         count_buffer += 1
-    await log(f"批量删除了回复用户所发送的 {str(count)} 条消息。")
-    notification = await send_prune_notify(context, count)
+    await log(f"批量删除了回复用户所发送的 {str(count_buffer)} / {str(count)} 条消息。")
+    notification = await send_prune_notify(context, count_buffer, count)
     await sleep(.5)
     await notification.delete()
 
 
-@listener(outgoing=True, command="del",
+@listener(is_plugin=False, outgoing=True, command="del",
           description="删除当前对话您回复的那条消息。（需要回复一条消息）")
 async def delete(context):
     """ Deletes the message you replied to. """
@@ -105,10 +106,10 @@ async def delete(context):
         await context.delete()
 
 
-async def send_prune_notify(context, count):
+async def send_prune_notify(context, count_buffer, count):
     return await context.client.send_message(
         context.chat_id,
         "删除了 "
-        + str(count)
+        + str(count_buffer) + " / " + str(count)
         + " 条消息。"
     )

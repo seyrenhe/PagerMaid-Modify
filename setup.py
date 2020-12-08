@@ -1,21 +1,24 @@
 """ Packaging of PagerMaid. """
 
 from setuptools import setup, find_packages
+import datetime
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 with open("requirements.txt", "r") as fp:
     install_requires = fp.read()
 
+formatted_today = datetime.date.today().strftime('%y%m%d')
+
 setup(
-    name="pagermaid",
-    version="2020.2.post13",
-    author="Stykers",
-    author_email="stykers@stykers.moe",
+    name="pagermaid_modify",
+    version=formatted_today[0:2] + "." + formatted_today[2:4] + "." + formatted_today[4:6] + ".post1",
+    author="xtaodada",
+    author_email="xtao@xtaolink.cn",
     description="A telegram utility daemon and plugin framework.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://katonkeyboard.moe/pagermaid.html",
+    url="https://github.com/xtaodada/PagerMaid-Modify",
     packages=find_packages(),
     entry_points={
         'console_scripts': [

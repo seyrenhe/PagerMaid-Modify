@@ -9,7 +9,7 @@ from pagermaid.listener import listener
 from pagermaid.utils import owoify, execute, random_gen, obtain_message
 
 
-@listener(outgoing=True, command="animate",
+@listener(is_plugin=False, outgoing=True, command="animate",
           description="使用消息制作文本动画。",
           parameters="<message>")
 async def animate(context):
@@ -30,7 +30,7 @@ async def animate(context):
         count += 1
 
 
-@listener(outgoing=True, command="teletype",
+@listener(is_plugin=False, outgoing=True, command="teletype",
           description="通过编辑消息来制作打字动画。会产生大量操作记录！",
           parameters="<message>")
 async def teletype(context):
@@ -50,11 +50,14 @@ async def teletype(context):
         buffer_commit = f"{buffer}{cursor}"
         await context.edit(buffer_commit)
         await sleep(interval)
-        await context.edit(buffer)
+        try:
+            await context.edit(buffer)
+        except MessageNotModifiedError:
+            pass
         await sleep(interval)
 
 
-@listener(outgoing=True, command="mock",
+@listener(is_plugin=False, outgoing=True, command="mock",
           description="通过怪异的大写字母来嘲笑人们。",
           parameters="<message>")
 async def mock(context):
@@ -77,7 +80,7 @@ async def mock(context):
             await context.delete()
 
 
-@listener(outgoing=True, command="widen",
+@listener(is_plugin=False, outgoing=True, command="widen",
           description="加宽字符串中的每个字符。",
           parameters="<message>")
 async def widen(context):
@@ -102,7 +105,7 @@ async def widen(context):
             await context.delete()
 
 
-@listener(outgoing=True, command="fox",
+@listener(is_plugin=False, outgoing=True, command="fox",
           description="使用狐狸来让您的消息看起来不那么完整",
           parameters="<message>")
 async def fox(context):
@@ -116,7 +119,7 @@ async def fox(context):
     await edit_reply(result, context)
 
 
-@listener(outgoing=True, command="owo",
+@listener(is_plugin=False, outgoing=True, command="owo",
           description="将消息转换为OwO。",
           parameters="<message>")
 async def owo(context):
@@ -130,7 +133,7 @@ async def owo(context):
     await edit_reply(result, context)
 
 
-@listener(outgoing=True, command="flip",
+@listener(is_plugin=False, outgoing=True, command="flip",
           description="翻转消息。",
           parameters="<message>")
 async def flip(context):
@@ -144,7 +147,7 @@ async def flip(context):
     await edit_reply(result, context)
 
 
-@listener(outgoing=True, command="ship",
+@listener(is_plugin=False, outgoing=True, command="ship",
           description="生成随机基友，也支持指定目标。",
           parameters="<username> <username>")
 async def ship(context):
@@ -187,7 +190,7 @@ async def ship(context):
                        f"[{target_2.first_name}](tg://user?id={target_2.id}) = ❤️")
 
 
-@listener(outgoing=True, command="rng",
+@listener(is_plugin=False, outgoing=True, command="rng",
           description="生成具有特定长度的随机字符串。",
           parameters="<length>")
 async def rng(context):
@@ -204,7 +207,7 @@ async def rng(context):
     await context.edit("出错了呜呜呜 ~ 无效的参数。")
 
 
-@listener(outgoing=True, command="aaa",
+@listener(is_plugin=False, outgoing=True, command="aaa",
           description="发送一条包含 a 和 A 的消息",
           parameters="<integer>")
 async def aaa(context):
@@ -221,7 +224,7 @@ async def aaa(context):
     await context.edit("出错了呜呜呜 ~ 无效的参数。")
 
 
-@listener(outgoing=True, command="asciiart",
+@listener(is_plugin=False, outgoing=True, command="asciiart",
           description="为指定的字符串生成ASCII文字。",
           parameters="<string>")
 async def asciiart(context):
@@ -235,7 +238,7 @@ async def asciiart(context):
     await context.edit(f"```\n{result}\n```")
 
 
-@listener(outgoing=True, command="tuxsay",
+@listener(is_plugin=False, outgoing=True, command="tuxsay",
           description="生成一条看起来像企鹅说话的 ASCII 艺术消息",
           parameters="<message>")
 async def tuxsay(context):
@@ -249,7 +252,7 @@ async def tuxsay(context):
     await context.edit(f"```\n{result}\n```")
 
 
-@listener(outgoing=True, command="coin",
+@listener(is_plugin=False, outgoing=True, command="coin",
           description="扔硬币。")
 async def coin(context):
     """ Throws a coin. """
